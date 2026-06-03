@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Node.js Kubernetes App</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      padding: 20px;
+    }
+
+    .container {
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 24px;
+      padding: 48px;
+      max-width: 600px;
+      width: 100%;
+      box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
+    }
+
+    h1 {
+      font-size: 2.2rem;
+      margin-bottom: 8px;
+      background: linear-gradient(90deg, #667eea, #764ba2);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .subtitle {
+      color: rgba(255, 255, 255, 0.6);
+      margin-bottom: 32px;
+      font-size: 0.95rem;
+    }
+
+    .info-card {
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 16px;
+      padding: 20px 24px;
+      margin-bottom: 16px;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      transition: transform 0.2s, background 0.2s;
+    }
+
+    .info-card:hover {
+      transform: translateY(-2px);
+      background: rgba(255, 255, 255, 0.12);
+    }
+
+    .info-card .label {
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: rgba(255, 255, 255, 0.4);
+      margin-bottom: 6px;
+    }
+
+    .info-card .value {
+      font-size: 1.15rem;
+      font-weight: 600;
+      word-break: break-all;
+    }
+
+    .visitor-count .value {
+      font-size: 2rem;
+      background: linear-gradient(90deg, #f093fb, #f5576c);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .footer {
+      margin-top: 32px;
+      text-align: center;
+      color: rgba(255, 255, 255, 0.3);
+      font-size: 0.8rem;
+    }
+
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(72, 199, 142, 0.15);
+      color: #48c78e;
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      margin-bottom: 24px;
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      background: #48c78e;
+      border-radius: 50%;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% {
+        opacity: 1;
+      }
+
+      50% {
+        opacity: 0.4;
+      }
+    }
+
+    .endpoints {
+      margin-top: 24px;
+      padding-top: 24px;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .endpoint-link {
+      display: block;
+      padding: 8px 12px;
+      margin: 4px 0;
+      background: rgba(102, 126, 234, 0.1);
+      border-radius: 8px;
+      text-decoration: none;
+      color: #667eea;
+      font-size: 0.9rem;
+      transition: background 0.2s;
+    }
+
+    .endpoint-link:hover {
+      background: rgba(102, 126, 234, 0.2);
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <div class="status-badge"><span class="status-dot"></span> Running on Kubernetes</div>
+    <h1>Node.js K8s Application</h1>
+    <p class="subtitle">Deployed with Docker &amp; Kubernetes on AWS Free Tier with CI/CD</p>
+
+    <div id="info" style="opacity: 0.5;">Loading...</div>
+
+    <div class="endpoints">
+      <div class="label">📊 Available Endpoints</div>
+      <a href="/health" class="endpoint-link">GET /health - Health Check</a>
+      <a href="/ready" class="endpoint-link">GET /ready - Readiness Check</a>
+      <a href="/metrics" class="endpoint-link">GET /metrics - Metrics</a>
+    </div>
+
+    <div class="footer">
+      Cloud Computing Project &bull; Docker &bull; Kubernetes &bull; GitHub Actions CI/CD
+    </div>
+  </div>
+
+  <script>
+    async function loadInfo() {
+      try {
+        const response = await fetch('/health');
+        const data = await response.json();
+
+        document.getElementById('info').innerHTML = `
+          <div class="info-card">
+            <div class="label">⏰ Current Timestamp</div>
+            <div class="value">${new Date(data.timestamp).toLocaleString()}</div>
+          </div>
+          
+          <div class="info-card">
+            <div class="label">🐳 Container / Pod ID</div>
+            <div class="value">${data.containerId}</div>
+          </div>
+          
+          <div class="info-card visitor-count">
+            <div class="label">👥 Visitor Count</div>
+            <div class="value">${data.visitorCount}</div>
+          </div>
+
+          <div class="info-card">
+            <div class="label">⬆️ Uptime</div>
+            <div class="value">${Math.round(data.uptime)} seconds</div>
+          </div>
+        `;
+        document.getElementById('info').style.opacity = '1';
+      } catch (err) {
+        console.error('Failed to load info:', err);
+      }
+    }
+
+    loadInfo();
+    setInterval(loadInfo, 5000);
+  </script>
+</body>
+
+</html>
