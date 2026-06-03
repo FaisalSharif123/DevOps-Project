@@ -1,0 +1,15 @@
+{
+  "name": "nodejs-k8s-app",
+  "version": "1.0.0",
+  "description": "Node.js web application deployed on AWS with Docker, Kubernetes, and CI/CD",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2"
+  }
+}
